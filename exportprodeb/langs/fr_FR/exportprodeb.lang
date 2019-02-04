@@ -1,0 +1,38 @@
+Module104994Name = Export ProDEB/DES
+Module104994Desc = exportprodeb Description
+
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+exportprodebSetup = Configuration du module export pro-douane
+exportprodebAbout = A propos du module exportprodeb
+
+#Conf
+EXPORT_PRO_DEB_NUM_AGREMENT=Numéro d'agrément (délivré par le CISD de rattachement)
+EXPORT_PRO_DEB_TYPE_ACTEUR=Type d'acteur
+EXPORT_PRO_DEB_ROLE_ACTEUR=Rôle joué par l'acteur
+EXPORT_PRO_DEB_NIV_OBLIGATION_INTRODUCTION=Niveau d'oligation sur les introductions
+EXPORT_PRO_DEB_NIV_OBLIGATION_EXPEDITION=Niveau d'obligation sur les expéditions
+EXPORT_PRO_DEB_CATEG_FRAISDEPORT=Catégorie de services de type "Frais de port"
+
+EXPORT_PRO_DES_NUM_DECLARATION=Numéro de déclarant
+
+#Menu
+exportprodebDouane=Export Pro-Douane
+exportprodebDEB=Export DEB
+exportprodebNew=Nouvelle déclaration
+exportprodebList=Liste des déclarations
+exportprodebDES=Export DES
+exportprodesNew=Nouvelle déclaration
+exportprodesList=Liste des déclarations
+
+#page d'export
+exportprodebTitle=Export d'un fichier XML au format ProDouane - DEB
+exportprodesTitle=Export d'un fichier XML au format ProDouane - DES
+
+#Liste
+exportprodebListdeb=Liste des déclarations générées (DEB)
+exportprodebListdes=Liste des déclarations générées (DES)
+exportprodebNumber=Numéro déclaration
+exportprodebPeriod=Période d'analyse
+exportprodebTypeDeclaration=Type de déclaration
+exportprodebDownload=Télécharger fichier XML
