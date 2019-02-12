@@ -174,28 +174,38 @@ class TDebProdouane extends TObjetStd {
 			$tabledet = 'facture_fourn_det';
 			$field_link = 'fk_facture_fourn';
 		}
-		$sql.= ', l.fk_product, l.qty
-				, p.weight, p.rowid as id_prod, p.customcode
-				, s.rowid as id_client, s.nom, s.zip, s.fk_pays, s.tva_intra
-				, c.code
-				, ext.mode_transport
-				FROM '.MAIN_DB_PREFIX.$tabledet.' l
-				INNER JOIN '.MAIN_DB_PREFIX.$table.' f ON (f.rowid = l.'.$field_link.')
-				LEFT JOIN '.MAIN_DB_PREFIX.$table_extraf.' ext ON (ext.fk_object = f.rowid)
-				INNER JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = l.fk_product)
-				INNER JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = f.fk_soc)
-				LEFT JOIN '.MAIN_DB_PREFIX.'c_country c ON (c.rowid = s.fk_pays)
-				WHERE f.fk_statut > 0
+		$sql.= ", l.fk_product, l.qty";
+		$sql.= ", p.weight, p.rowid as id_prod, p.customcode ";
+		$sql.= ", s.rowid as id_client, s.nom, s.zip, s.fk_pays, s.tva_intra ";
+		$sql.= ", c.code ";
+		$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
+		$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.'.$field_link.')";
+		$sql.=		INNER JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = l.fk_product) ";
+		$sql.=		INNER JOIN '.MAIN_DB_PREFIX.'societe s ON (s.rowid = f.fk_soc) ";
+		$sql.=		LEFT JOIN '.MAIN_DB_PREFIX.'c_country c ON (c.rowid = s.fk_pays) ";
+		$sql.=		WHERE f.fk_statut > 0 ";
+		$sql.=		AND f.entity = '.$conf->entity.' 
+		$sql.=		AND f.datef BETWEEN "'.$periode_reference.'-01" AND "'.$periode_reference.'-'.date('t').'"';
 				
-				AND f.entity = '.$conf->entity.'
-				AND (s.fk_pays <> '.$mysoc->country_id.' OR s.fk_pays IS NULL)
-				AND f.datef BETWEEN "'.$periode_reference.'-01" AND "'.$periode_reference.'-'.date('t').'"';
+				
+				AND (c.code ='AT' OR c.code ='BE' OR c.code ='BG' OR c.code ='CY' OR c.code ='CZ' ";
+$sql.= " OR c.code ='DE' OR c.code ='DK' OR c.code ='EE' OR c.code ='ES' OR c.code ='FI' ";
+$sql.= " OR c.code ='GB' OR c.code ='GR' OR c.code ='HR' OR c.code ='NL' OR c.code ='HU' ";
+$sql.= " OR c.code ='IE' OR c.code ='IM' OR c.code ='IT' OR c.code ='LT' OR c.code ='LU' ";
+$sql.= " OR c.code ='LV' OR c.code ='MC' OR c.code ='MT' OR c.code ='PL' OR c.code ='RO' ";
+$sql.= " OR c.code ='SE' OR c.code ='SK' OR c.code ='SI' OR c.code ='PT' OR c.code ='UK' )";
+				
 		
 		return $sql;
 		
 	}
 	
 	// remove ligne 189  AND l.product_type = '.($exporttype == 'des' ? 1 : 0).'
+	// remove ligne 181   , ext.mode_transport
+	//  LEFT JOIN '.MAIN_DB_PREFIX.$table_extraf.' ext ON (ext.fk_object = f.rowid)
+	
+	
+	
 	
 	
 	function addItemXMl(&$declaration, &$res, $code_douane_spe='', $i) {
