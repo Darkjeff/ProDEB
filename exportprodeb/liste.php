@@ -111,10 +111,12 @@ $search_year=GETPOST("search_year","int");
 // add choice column
 $arrayfields=array(
 	'f.facnumber'=>array('label'=>$langs->trans("ref"), 'checked'=>1),
-    'f.total'=>array('label'=>$langs->trans("BankdraftReceipts"), 'checked'=>1),
+    'f.total'=>array('label'=>$langs->trans("InvoiceTotal"), 'checked'=>1),
+	'f.datef'=>array('label'=>$langs->trans("DateInvoice"), 'checked'=>1),
     'f.facnumber'=>array('label'=>$langs->trans("BankdraftBills"), 'checked'=>1),
-	's.nom'=>array('label'=>$langs->trans("BankdraftCompany"), 'checked'=>1),
-	's.tva_intra'=>array('label'=>$langs->trans("BankdraftCustomerCode"), 'checked'=>1)
+	's.nom'=>array('label'=>$langs->trans("Name"), 'checked'=>1),
+	's.tva_intra'=>array('label'=>$langs->trans("TVA_INTRA"), 'checked'=>1),
+	'c.label'=>array('label'=>$langs->trans("country"), 'checked'=>1)
 	
 	);
 
@@ -147,7 +149,7 @@ llxHeader('',$langs->trans("BankdraftLines"));
 
 $sql = "SELECT f.rowid, f.facnumber, f.total as total_ht, f.datef ";
 $sql.= " , s.rowid as id_client, s.nom, s.zip, s.fk_pays, s.tva_intra ";
-$sql.= " , c.code ";
+$sql.= " , c.code, c.label ";
 $sql.= " FROM ".MAIN_DB_PREFIX."facture as f";
 $sql.= " , ".MAIN_DB_PREFIX."societe as s";
 $sql.= " , ".MAIN_DB_PREFIX."c_country as c";
@@ -232,6 +234,7 @@ if ($result)
     if (! empty($arrayfields['s.tva_intra']['checked']))			print_liste_field_titre($langs->trans("BankdraftCustomerCode"),$_SERVER["PHP_SELF"],"s.tva_intra",'','','align="center"');
 	if (! empty($arrayfields['f.datef']['checked']))				print_liste_field_titre($langs->trans("DateInvoice"),$_SERVER["PHP_SELF"],"f.datef","","",'align="center"');
     if (! empty($arrayfields['f.total']['checked']))			print_liste_field_titre($langs->trans("BankdraftRequestAmountTtc"),$_SERVER["PHP_SELF"],"f.total","","",'align="right"');
+	if (! empty($arrayfields['c.label']['checked']))			print_liste_field_titre($langs->trans("BCountry"),$_SERVER["PHP_SELF"],"c.label","","",'align="right"');
     print '<td class="liste_titre">&nbsp;</td>';
 	print_liste_field_titre($selectedfields, $_SERVER["PHP_SELF"],"",'','','align="center"',$sortfield,$sortorder,'maxwidthsearch ');
     print '</tr>';
@@ -255,9 +258,7 @@ if ($result)
 	print '</td>';
 	}
 	*/
-	
-	if (! empty($arrayfields['pl.amount']['checked']))				print '<td class="liste_titre">&nbsp;</td>';
-    if (! empty($arrayfields['f.total_ttc']['checked']))			print '<td class="liste_titre">&nbsp;</td>';
+	if (! empty($arrayfields['c.label']['checked']))					print '<td class="liste_titre"><input type="text" class="flat" name="search_societe" value="'. $search_societe.'" size="12"></td>';
 	print '<td class="liste_titre">&nbsp;</td>';
     //print '<td class="liste_titre" align="right"><input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'search.png','','',1).'" name="button_search" value="'.dol_escape_htmltag($langs->trans("Search")).'" title="'.dol_escape_htmltag($langs->trans("Search")).'"></td>';
     print '<td align="right" class="liste_titre">';
@@ -276,7 +277,7 @@ if ($result)
 		}
 	</script>';
 	print '<div class="tabsAction tabsActionNoBottom">';
-	print '<input type="button" class="butAction" name="export_file" value="' . $langs->trans("ExportLCR") . '" onclick="launch_export();" />';
+	//print '<input type="button" class="butAction" name="export_file" value="' . $langs->trans("ExportLCR") . '" onclick="launch_export();" />';
 	print '</div>';
 	
 	
@@ -288,23 +289,7 @@ if ($result)
     {
         $obj = $db->fetch_object($result);
 
-        //$var=!$var;
-		
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		print '<tr class="oddeven">';
+        print '<tr class="oddeven">';
 
 		// reference
 		if (! empty($arrayfields['f.rowid']['checked']))
@@ -332,6 +317,7 @@ if ($result)
         print '</a></td>';
 		}
 		
+			
 		// societe
 		if (! empty($arrayfields['s.nom']['checked']))
 		{
@@ -344,13 +330,23 @@ if ($result)
         print '<td align="center"><a href="'.dol_buildpath('/comm/card.php?socid='.$obj->socid,1).'">'.$obj->tva_intra."</a></td>\n";
 		}
 		
+		// countruy
+		if (! empty($arrayfields['c.label']['checked']))
+		{
+        print '<td align="left">'.$obj->label."</td>\n";
+		}
+		
 		// date facture
 		if (! empty($arrayfields['f.datef']['checked']))
 		{
 		print '<td align="left">'.$obj->datef."</td>\n";
 		}
 		
-		
+		// total facture
+		if (! empty($arrayfields['f.total']['checked']))
+		{
+		print '<td align="left">'.$obj->total_ht."</td>\n";
+		}
 		
 		
 		
