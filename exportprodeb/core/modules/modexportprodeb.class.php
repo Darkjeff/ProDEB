@@ -241,6 +241,19 @@ class modexportprodeb extends DolibarrModules
                     'user'=>2);             // 0=Menu for internal users, 1=external users, 2=both
         $r++;
 		
+		$this->menu[$r]=array('fk_menu'=>'fk_mainmenu=exportprodeb,fk_leftmenu=exportprodeb',         // Put 0 if this is a top menu
+                    'type'=>'left',         // This is a Top menu entry
+                    'titre'=>$langs->trans('exportprodebListInvoice'),
+                    'mainmenu'=>'exportprodeb',
+                    'leftmenu'=>'exportprodebListInvoice',
+                    'url'=>'/exportprodeb/liste.php',
+                    'position'=>100+$r,
+                    'enabled'=>'$conf->exportprodeb->enabled',            // Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
+                    'perms'=>1,          // Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
+                    'target'=>'',
+                    'user'=>2);             // 0=Menu for internal users, 1=external users, 2=both
+        $r++;
+		
 		$this->menu[$r]=array('fk_menu'=>'fk_mainmenu=exportprodeb',			// Put 0 if this is a top menu
 					'type'=>'left',			// This is a Top menu entry
 					'titre'=>$langs->trans('exportprodebDES'),

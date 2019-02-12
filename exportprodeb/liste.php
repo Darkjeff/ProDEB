@@ -19,9 +19,9 @@
  */
 
 /**
- *      \file       htdocs/compta/lcr/liste.php
- *      \ingroup    lcr
- *      \brief      Page liste des lcrs
+ *      \file       htdocs/custom/exportprodeb/liste.php
+ *      \ingroup    Exportprodeb
+ *      \brief      Page liste des invoice UE
  */
 
 $res = 0;
@@ -56,15 +56,12 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 // langs 
 
 $langs->loadLangs(array('bills','banks','companies','categories'));
-//$langs->load("banks");
-//$langs->load("lcr");
-//$langs->load("companies");
-//$langs->load("categories");
+
 
 // Security check
 $socid = GETPOST('socid','int');
 if ($user->societe_id) $socid=$user->societe_id;
-//$result = restrictedArea($user, 'lcr','','','bons');
+
 
 // Get supervariables
 
@@ -81,11 +78,10 @@ $contextpage=GETPOST('contextpage','aZ')?GETPOST('contextpage','aZ'):'invoicedeb
 
 $page = GETPOST('page','int');
 $sortorder = ((GETPOST('sortorder','alpha')=="")) ? "DESC" : GETPOST('sortorder','alpha');
-$sortfield = ((GETPOST('sortfield','alpha')=="")) ? "p.datec" : GETPOST('sortfield','alpha');
+$sortfield = ((GETPOST('sortfield','alpha')=="")) ? "f.datef" : GETPOST('sortfield','alpha');
 $search_line = GETPOST('search_ligne','alpha');
-$search_bon = GETPOST('search_bon','alpha');
 $search_invoice = GETPOST('$search_invoice','alpha');
-$search_code = GETPOST('search_code','alpha');
+$search_total = GETPOST('search_total','alpha');
 $search_societe = GETPOST('search_societe','alpha');
 $statut = GETPOST('statut','int');
 $search_day=GETPOST("search_day","int");
@@ -114,28 +110,19 @@ $search_year=GETPOST("search_year","int");
 
 // add choice column
 $arrayfields=array(
-	'p.rowid'=>array('label'=>$langs->trans("ref"), 'checked'=>1),
-    'p.ref'=>array('label'=>$langs->trans("BankdraftReceipts"), 'checked'=>1),
+	'f.facnumber'=>array('label'=>$langs->trans("ref"), 'checked'=>1),
+    'f.total'=>array('label'=>$langs->trans("BankdraftReceipts"), 'checked'=>1),
     'f.facnumber'=>array('label'=>$langs->trans("BankdraftBills"), 'checked'=>1),
 	's.nom'=>array('label'=>$langs->trans("BankdraftCompany"), 'checked'=>1),
-	's.code_client'=>array('label'=>$langs->trans("BankdraftCustomerCode"), 'checked'=>1),
-	//// to do change trans
-	's.code_compta'=>array('label'=>$langs->trans("AccountingCustomerCode"), 'checked'=>1),
-	////////
-	'sr.iban_prefix'=>array('label'=>$langs->trans("IBANNumber"), 'checked'=>1),
-	'sr.bic'=>array('label'=>$langs->trans("BICNumber"), 'checked'=>1),
-	'p.datec'=>array('label'=>$langs->trans("BankdraftDate"), 'checked'=>1),
-	'pl.amount'=>array('label'=>$langs->trans("BankdraftRequestAmount"), 'checked'=>1),
-	'f.total_ttc'=>array('label'=>$langs->trans("BankdraftRequestAmountTtc"), 'checked'=>1),
-	'f.datef'=>array('label'=>$langs->trans("DateInvoice"), 'checked'=>1),
-	'f.date_lim_reglement'=>array('label'=>$langs->trans("DateMaxPayment"), 'checked'=>1)
+	's.tva_intra'=>array('label'=>$langs->trans("BankdraftCustomerCode"), 'checked'=>1)
+	
 	);
 
 //////////////
 
 
-$bon=new BonLcr($db,"");
-$ligne=new LigneLcr($db,$user);
+//$bon=new BonLcr($db,"");
+//$ligne=new LigneLcr($db,$user);
 
 $offset = $conf->liste_limit * $page ;
 
@@ -158,7 +145,7 @@ $formother = new FormOther($db);
 
 llxHeader('',$langs->trans("BankdraftLines"));
 
-$sql = "SELECT f.facnumber, f.total as total_ht";
+$sql = "SELECT f.rowid, f.facnumber, f.total as total_ht, f.datef ";
 $sql.= " , s.rowid as id_client, s.nom, s.zip, s.fk_pays, s.tva_intra ";
 $sql.= " , c.code ";
 $sql.= " FROM ".MAIN_DB_PREFIX."facture as f";
@@ -171,25 +158,16 @@ $sql.= " AND f.entity = ".$conf->entity;
 if ($socid) $sql.= " AND s.rowid = ".$socid;
 if ($search_line)
 {
-    $sql.= " AND pl.rowid = '".$search_line."'";
+    $sql.= " AND f.rowid = '".$search_line."'";
 }
-if ($search_bon)
-{
-    $sql.= " AND p.ref LIKE '%".$search_bon."%'";
-}
-/*
-if ($search_invoice)
-{
-    $sql.= "AND f.facnumber LIKE '%".$search_invoice."%'";
-}
-*/
+
 
 if (strlen(trim($search_invoice))) {
     $sql .= natural_search("f.facnumber", $search_invoice);
 }
-if ($search_code)
+if ($search_total)
 {
-    $sql.= " AND s.code_client LIKE '%".$search_code."%'";
+    $sql.= " AND f.total LIKE '%".$search_total."%'";
 }
 if ($search_societe)
 {
@@ -199,15 +177,15 @@ if ($search_societe)
 if ($search_month > 0)
 {
 	if ($search_year > 0 && empty($search_day))
-		$sql.= " AND f.date_lim_reglement BETWEEN '".$db->idate(dol_get_first_day($search_year,$search_month,false))."' AND '".$db->idate(dol_get_last_day($search_year,$search_month,false))."'";
+		$sql.= " AND f.datef BETWEEN '".$db->idate(dol_get_first_day($search_year,$search_month,false))."' AND '".$db->idate(dol_get_last_day($search_year,$search_month,false))."'";
 		else if ($search_year > 0 && ! empty($search_day))
-			$sql.= " AND f.date_lim_reglement BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_month, $search_day, $search_year))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_month, $search_day, $search_year))."'";
+			$sql.= " AND f.datef BETWEEN '".$db->idate(dol_mktime(0, 0, 0, $search_month, $search_day, $search_year))."' AND '".$db->idate(dol_mktime(23, 59, 59, $search_month, $search_day, $search_year))."'";
 			else
-				$sql.= " AND date_format(f.date_lim_reglement, '%m') = '".$db->escape($search_month)."'";
+				$sql.= " AND date_format(f.datef, '%m') = '".$db->escape($search_month)."'";
 }
 else if ($search_year > 0)
 {
-	$sql.= " AND f.date_lim_reglement BETWEEN '".$db->idate(dol_get_first_day($search_year,1,false))."' AND '".$db->idate(dol_get_last_day($search_year,12,false))."'";
+	$sql.= " AND f.datef BETWEEN '".$db->idate(dol_get_first_day($search_year,1,false))."' AND '".$db->idate(dol_get_last_day($search_year,12,false))."'";
 }
 
 
@@ -226,7 +204,7 @@ if ($result)
     $urladd = "&amp;statut=".$statut;
     $urladd .= "&amp;search_bon=".$search_bon;
 
-    print_barre_liste($langs->trans("BankdraftLines"), $page, "liste.php", $urladd, $sortfield, $sortorder, '', $num);
+    print_barre_liste($langs->trans("ExportProDebLines"), $page, "liste.php", $urladd, $sortfield, $sortorder, '', $num);
 
 	$varpage=empty($contextpage)?$_SERVER["PHP_SELF"]:$contextpage;
     $selectedfields=$form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage);
@@ -248,36 +226,23 @@ if ($result)
 	
 
     print '<tr class="liste_titre_filter">';
-    if (! empty($arrayfields['p.rowid']['checked']))				print '<td class="liste_titre">'.$langs->trans("BankdraftLine").'</td>';
-    if (! empty($arrayfields['p.ref']['checked']))					print_liste_field_titre($langs->trans("BankdraftReceipts"),$_SERVER["PHP_SELF"],"p.ref");
+    if (! empty($arrayfields['f.rowid']['checked']))				print '<td class="liste_titre">'.$langs->trans("BankdraftLine").'</td>';
     if (! empty($arrayfields['f.facnumber']['checked']))			print_liste_field_titre($langs->trans("BankdraftBills"),$_SERVER["PHP_SELF"],"f.facnumber",'',$urladd);
     if (! empty($arrayfields['s.nom']['checked']))					print_liste_field_titre($langs->trans("BankdraftCompany"),$_SERVER["PHP_SELF"],"s.nom");
-    if (! empty($arrayfields['s.code_client']['checked']))			print_liste_field_titre($langs->trans("BankdraftCustomerCode"),$_SERVER["PHP_SELF"],"s.code_client",'','','align="center"');
-	if (! empty($arrayfields['s.code_compta']['checked']))			print_liste_field_titre($langs->trans("AccountingCustomerCode"),$_SERVER["PHP_SELF"],"s.code_compta",'','','align="center"');
-    if (! empty($arrayfields['sr.iban_prefix']['checked']))			print_liste_field_titre($langs->trans("IBANNumber"),$_SERVER["PHP_SELF"],"sr.iban_prefix",'','','align="left"');
-    if (! empty($arrayfields['sr.bic']['checked']))					print_liste_field_titre($langs->trans("BICNumber"),$_SERVER["PHP_SELF"],"sr.bic",'','','align="left"');
-    if (! empty($arrayfields['p.datec']['checked']))				print_liste_field_titre($langs->trans("BankdraftDate"),$_SERVER["PHP_SELF"],"p.datec","","",'align="center"');
-    if (! empty($arrayfields['f.datef']['checked']))				print_liste_field_titre($langs->trans("DateInvoice"),$_SERVER["PHP_SELF"],"f.datef","","",'align="center"');
-    if (! empty($arrayfields['f.date_lim_reglement']['checked']))	print_liste_field_titre($langs->trans("DateMaxPayment"),$_SERVER["PHP_SELF"],"f.date_lim_reglement","","",'align="center"');
-    if (! empty($arrayfields['pl.amount']['checked']))				print_liste_field_titre($langs->trans("BankdraftRequestAmount"),$_SERVER["PHP_SELF"],"pl.amount","","",'align="right"');
-	if (! empty($arrayfields['f.total_ttc']['checked']))			print_liste_field_titre($langs->trans("BankdraftRequestAmountTtc"),$_SERVER["PHP_SELF"],"f.total_ttc","","",'align="right"');
+    if (! empty($arrayfields['s.tva_intra']['checked']))			print_liste_field_titre($langs->trans("BankdraftCustomerCode"),$_SERVER["PHP_SELF"],"s.tva_intra",'','','align="center"');
+	if (! empty($arrayfields['f.datef']['checked']))				print_liste_field_titre($langs->trans("DateInvoice"),$_SERVER["PHP_SELF"],"f.datef","","",'align="center"');
+    if (! empty($arrayfields['f.total']['checked']))			print_liste_field_titre($langs->trans("BankdraftRequestAmountTtc"),$_SERVER["PHP_SELF"],"f.total","","",'align="right"');
     print '<td class="liste_titre">&nbsp;</td>';
 	print_liste_field_titre($selectedfields, $_SERVER["PHP_SELF"],"",'','','align="center"',$sortfield,$sortorder,'maxwidthsearch ');
     print '</tr>';
 
     //print '<form action="liste.php" method="GET">';
     print '<tr class="liste_titre">';
-    if (! empty($arrayfields['p.rowid']['checked']))				print '<td class="liste_titre"><input type="text" class="flat" name="search_ligne" value="'. $search_line.'" size="6"></td>';
-    if (! empty($arrayfields['p.ref']['checked']))					print '<td class="liste_titre"><input type="text" class="flat" name="search_bon" value="'. $search_bon.'" size="8"></td>';
+    if (! empty($arrayfields['f.rowid']['checked']))				print '<td class="liste_titre"><input type="text" class="flat" name="search_ligne" value="'. $search_line.'" size="6"></td>';
     if (! empty($arrayfields['f.facnumber']['checked']))			print '<td class="liste_titre"><input type="text" class="flat" name="search_invoice" value="'. $search_invoice.'" size="8"></td>';
 	if (! empty($arrayfields['s.nom']['checked']))					print '<td class="liste_titre"><input type="text" class="flat" name="search_societe" value="'. $search_societe.'" size="12"></td>';
-    if (! empty($arrayfields['s.code_client']['checked']))			print '<td class="liste_titre" align="center"><input type="text" class="flat" name="search_code" value="'. $search_code.'" size="8"></td>';
-	if (! empty($arrayfields['s.code_compta']['checked']))			print '<td class="liste_titre" align="center"><input type="text" class="flat" name="search_code_compta" value="'. $search_code_compta.'" size="8"></td>';
-    if (! empty($arrayfields['sr.iban_prefix']['checked']))			print '<td class="liste_titre">&nbsp;</td>';
-    if (! empty($arrayfields['sr.bic']['checked']))					print '<td class="liste_titre">&nbsp;</td>';
-    if (! empty($arrayfields['p.datec']['checked']))				print '<td class="liste_titre">&nbsp;</td>';
-    if (! empty($arrayfields['f.datef']['checked']))				print '<td class="liste_titre">&nbsp;</td>';
-    if (! empty($arrayfields['f.date_lim_reglement']['checked']))
+    if (! empty($arrayfields['s.tva_intra']['checked']))			print '<td class="liste_titre" align="center"><input type="text" class="flat" name="search_code" value="'. $search_code.'" size="8"></td>';
+	    if (! empty($arrayfields['f.datef']['checked']))
 	{
 	print '<td class="liste_titre"><input class="flat valignmiddle" type="text" size="1" maxlength="2" name="search_month" value="'.$search_month.'"size="8">';
 	$formother->select_year($search_year,'search_year',1, 20, 5);
@@ -328,18 +293,8 @@ if ($result)
 		
 		
 		
-		// Export into a file with format defined into setup
-if ($action == 'export_file') {
+		
 
-	$sep = $conf->global->ACCOUNTING_EXPORT_SEPARATORCSV;
-
-	$filename = 'listlcr';
-	
-	print '"' . $obj->statut_ligne . '"' . $sep;
-	print '"' . $obj->ref . '"' . $sep;
-	print '"' . price($obj->total_ttc) . '"' . $sep;
-	
-}
 		
 		
 		
@@ -352,7 +307,7 @@ if ($action == 'export_file') {
 		print '<tr class="oddeven">';
 
 		// reference
-		if (! empty($arrayfields['p.rowid']['checked']))
+		if (! empty($arrayfields['f.rowid']['checked']))
 		{
 			print "<td>";
 		
@@ -367,15 +322,7 @@ if ($action == 'export_file') {
 		}
 		
 		
-		// Bordereau
-		if (! empty($arrayfields['p.ref']['checked']))
-		{		
-		print '<td>';
-        print $bon->LibStatut($obj->statut,2);
-        print "&nbsp;";
-        print '<a href="fiche.php?id='.$obj->rowid.'">'.$obj->ref."</a></td>\n";
-		}
-		
+
 		// ref facture
 		if (! empty($arrayfields['f.facnumber']['checked']))
 		{	
@@ -391,58 +338,21 @@ if ($action == 'export_file') {
         print '<td><a href="'.dol_buildpath('/comm/card.php?socid='.$obj->socid,1).'">'.$obj->nom."</a></td>\n";
 		}
 		
-		//code client
-		if (! empty($arrayfields['s.code_client']['checked']))
+		//code tva intra
+		if (! empty($arrayfields['s.tva_intra']['checked']))
 		{
-        print '<td align="center"><a href="'.dol_buildpath('/comm/card.php?socid='.$obj->socid,1).'">'.$obj->code_client."</a></td>\n";
+        print '<td align="center"><a href="'.dol_buildpath('/comm/card.php?socid='.$obj->socid,1).'">'.$obj->tva_intra."</a></td>\n";
 		}
 		
-		// accounting code customer
-		if (! empty($arrayfields['s.code_compta']['checked']))
-		{
-		print '<td align="left">'.$obj->code_compta."</td>\n";
-		}
-		
-		// IBAN 
-		if (! empty($arrayfields['sr.iban_prefix']['checked']))
-		{
-		print '<td align="left">'.$obj->iban_prefix."</td>\n";
-		}
-		// bic
-		if (! empty($arrayfields['sr.bic']['checked']))
-		{
-		print '<td align="left">'.$obj->bic."</td>\n";
-		}
-		
-		// asked date
-		if (! empty($arrayfields['p.datec']['checked']))
-		{
-        print '<td align="center">'.dol_print_date($db->jdate($obj->datec),'day')."</td>\n";
-		}
-		
-		// date invoice
+		// date facture
 		if (! empty($arrayfields['f.datef']['checked']))
 		{
-        print '<td align="center">'.dol_print_date($db->jdate($obj->datef),'day')."</td>\n";
+		print '<td align="left">'.$obj->datef."</td>\n";
 		}
 		
-		// date lim reglement
-		if (! empty($arrayfields['f.date_lim_reglement']['checked']))
-		{
-        print '<td align="center">'.dol_print_date($db->jdate($obj->date_lim_reglement),'day')."</td>\n";
-		}
 		
-		//total lcr
-		if (! empty($arrayfields['pl.amount']['checked']))
-		{
-        print '<td align="right">'.price($obj->amount)."</td>\n";
-		}
 		
-		//total ttc
-		if (! empty($arrayfields['f.total_ttc']['checked']))
-		{
-		print '<td align="right">'.price($obj->total_ttc)."</td>\n";
-		}
+		
 		
 
 
