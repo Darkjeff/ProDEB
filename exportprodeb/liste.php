@@ -50,6 +50,7 @@ if (!$res)
 //dol_include_once('/lcr/class/lignelcr.class.php');
 
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 
@@ -155,7 +156,12 @@ $sql.= " , ".MAIN_DB_PREFIX."societe as s";
 $sql.= " , ".MAIN_DB_PREFIX."c_country as c";
 $sql.= " WHERE s.rowid = f.fk_soc";
 $sql.= " AND c.rowid = s.fk_pays";
-$sql.= " AND (s.fk_pays <>" .$mysoc->country_id." OR s.fk_pays IS NULL)";
+$sql.= " AND (c.code ='AT' OR c.code ='BE' OR c.code ='BG' OR c.code ='CY' OR c.code ='CZ' ";
+$sql.= " OR c.code ='DE' OR c.code ='DK' OR c.code ='EE' OR c.code ='ES' OR c.code ='FI' ";
+$sql.= " OR c.code ='GB' OR c.code ='GR' OR c.code ='HR' OR c.code ='NL' OR c.code ='HU' ";
+$sql.= " OR c.code ='IE' OR c.code ='IM' OR c.code ='IT' OR c.code ='LT' OR c.code ='LU' ";
+$sql.= " OR c.code ='LV' OR c.code ='MC' OR c.code ='MT' OR c.code ='PL' OR c.code ='RO' ";
+$sql.= " OR c.code ='SE' OR c.code ='SK' OR c.code ='SI' OR c.code ='PT' OR c.code ='UK' )";
 $sql.= " AND f.entity = ".$conf->entity;
 if ($socid) $sql.= " AND s.rowid = ".$socid;
 if ($search_line)
