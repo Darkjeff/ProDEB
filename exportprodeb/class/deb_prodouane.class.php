@@ -116,6 +116,7 @@ class TDebProdouane extends TObjetStd {
 			if(empty($resql->num_rows)) {
 				$this->errors[] = 'Aucune donnée pour cette période';
 				var_dump ($resql) ;
+				var_dump ($periode_reference) ;
 				return 0;
 			}
 			
@@ -205,8 +206,14 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " OR c.code ='IE' OR c.code ='IM' OR c.code ='IT' OR c.code ='LT' OR c.code ='LU' ";
 		$sql.= " OR c.code ='LV' OR c.code ='MC' OR c.code ='MT' OR c.code ='PL' OR c.code ='RO' ";
 		$sql.= " OR c.code ='SE' OR c.code ='SK' OR c.code ='SI' OR c.code ='PT' OR c.code ='UK' )";
-		$sql.= " AND f.entity = ".$conf->entity;		
-		$sql.= " AND year(f.datef) =2018 ";
+		//$sql.= " AND year(f.datef) = left(".$periode_reference.",4) ";
+		//$sql.= " AND month(f.datef) = right(".$periode_reference.",2) ";
+		
+		//$sql.= "AND year(f.datef) = 2019 ";
+		$sql.= " AND f.entity = ".$conf->entity;
+		
+		//$sql.= " AND f.datef BETWEEN ".$periode_reference."-01 AND ".$periode_reference."-30";		
+		//$sql.= " AND year(f.datef) =2018 ";
 		
 		///to do correct select year and month
 		//$sql.= " AND year(f.datef) =  ".$period_year ;
