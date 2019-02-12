@@ -185,7 +185,7 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
 		$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.".$field_link.")";
 		
-	// if no product 
+	// if no product for DES   FOR DEB need product 
 		if( $exporttype=='des') {
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product p ON (p.rowid = l.fk_product) ";
 		} else 	{
@@ -196,7 +196,9 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " INNER JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = f.fk_soc) "; 
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_country c ON (c.rowid = s.fk_pays) ";
 		$sql.= " WHERE f.fk_statut > 0 ";
-		$sql.= " AND year(f.datef) =2019 ";
+		
+		
+		// add filtary on country adapt to france need to change for other country 
 		$sql.= " AND (c.code ='AT' OR c.code ='BE' OR c.code ='BG' OR c.code ='CY' OR c.code ='CZ' ";
 		$sql.= " OR c.code ='DE' OR c.code ='DK' OR c.code ='EE' OR c.code ='ES' OR c.code ='FI' ";
 		$sql.= " OR c.code ='GB' OR c.code ='GR' OR c.code ='HR' OR c.code ='NL' OR c.code ='HU' ";
@@ -204,9 +206,11 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " OR c.code ='LV' OR c.code ='MC' OR c.code ='MT' OR c.code ='PL' OR c.code ='RO' ";
 		$sql.= " OR c.code ='SE' OR c.code ='SK' OR c.code ='SI' OR c.code ='PT' OR c.code ='UK' )";
 		$sql.= " AND f.entity = ".$conf->entity;		
+		$sql.= " AND year(f.datef) =2018 ";
 		
+		///to do correct select year and month
+		//$sql.= " AND year(f.datef) =  ".$period_year ;
 		
-		//$sql.=		AND f.datef BETWEEN "'.$periode_reference.'-01" AND "'.$periode_reference.'-'.date('t').'"';
 		return $sql;
 		
 	}
