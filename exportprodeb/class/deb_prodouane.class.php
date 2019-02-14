@@ -91,7 +91,7 @@ class TDebProdouane extends TObjetStd {
 		
 		
 		/**************Ajout des lignes de factures**************************/
-		$res = self::addItemsFact($declaration_des, $type_declaration, $period_year.'-'.$period_month, 'des');
+		$res = self::addItemsFact($declaration_des, $type_declaration, $period_year , 'des' , $period_month);
 		/********************************************************************/
 		
 		$this->errors = array_unique($this->errors);
@@ -100,13 +100,13 @@ class TDebProdouane extends TObjetStd {
 		else return 0;
 	}
 	
-	function addItemsFact(&$declaration, $type, $periode_reference, $exporttype='deb') {
+	function addItemsFact(&$declaration, $type, $periode_reference,  $exporttype='deb', $period_month) {
 		
 		global $db, $conf;
 		
 		require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 		
-		$sql = $this->getSQLFactLines($type, $periode_reference, $exporttype);
+		$sql = $this->getSQLFactLines($type, $periode_reference, $exporttype, $period_month);
 		
 		$resql = $db->query($sql);
 		
@@ -130,6 +130,7 @@ class TDebProdouane extends TObjetStd {
 				
 				if ($exporttype == 'des')
 				{
+					
 					$this->addItemXMlDes($declaration, $res, '', $i);
 				}
 				else
@@ -158,7 +159,7 @@ class TDebProdouane extends TObjetStd {
 		
 	}
 
-	function getSQLFactLines($type, $periode_reference, $exporttype='deb') {
+	function getSQLFactLines($type, $periode_reference,  $exporttype='deb', $period_month) {
 		
 		global $mysoc, $conf;
 		
@@ -206,17 +207,15 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " OR c.code ='IE' OR c.code ='IM' OR c.code ='IT' OR c.code ='LT' OR c.code ='LU' ";
 		$sql.= " OR c.code ='LV' OR c.code ='MC' OR c.code ='MT' OR c.code ='PL' OR c.code ='RO' ";
 		$sql.= " OR c.code ='SE' OR c.code ='SK' OR c.code ='SI' OR c.code ='PT' OR c.code ='UK' )";
-		//$sql.= " AND year(f.datef) = left(".$periode_reference.",4) ";
-		//$sql.= " AND month(f.datef) = right(".$periode_reference.",2) ";
 		
-		//$sql.= "AND year(f.datef) = 2019 ";
+		
+		$sql.= " AND year(f.datef) = ".$periode_reference ;
+		$sql.= " AND month(f.datef) = ".$period_month ;
+		
+		
 		$sql.= " AND f.entity = ".$conf->entity;
 		
-		//$sql.= " AND f.datef BETWEEN ".$periode_reference."-01 AND ".$periode_reference."-30";		
-		//$sql.= " AND year(f.datef) =2018 ";
 		
-		///to do correct select year and month
-		//$sql.= " AND year(f.datef) =  ".$period_year ;
 		
 		return $sql;
 		
