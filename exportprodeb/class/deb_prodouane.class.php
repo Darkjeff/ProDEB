@@ -65,7 +65,7 @@ class TDebProdouane extends TObjetStd {
 		/********************************************************************/
 		
 		/**************Ajout des lignes de factures**************************/
-		$res = self::addItemsFact($declaration, $type, $periode_reference);
+		$res = self::addItemsFact($declaration, $type, $period_year , 'deb' , $period_month);
 		/********************************************************************/
 		
 		$this->errors = array_unique($this->errors);
@@ -179,7 +179,7 @@ class TDebProdouane extends TObjetStd {
 		}
 		if( $exporttype=='deb') {
 		$sql.= ", l.fk_product, l.qty";
-		$sql.= ", p.weight, p.rowid as id_prod, p.customcode ";
+		$sql.= ", p.weight, p.rowid as id_prod, p.customcode , ext.mode_transport ";
 		}
 		
 		
@@ -203,6 +203,7 @@ class TDebProdouane extends TObjetStd {
 		$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
 		$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.".$field_link.")";
 		$sql.= " INNER JOIN ".MAIN_DB_PREFIX."product p ON (p.rowid = l.fk_product) ";
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX.$table_extraf." ext ON (ext.fk_object = f.rowid)";
 		}
 		
 		
