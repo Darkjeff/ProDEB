@@ -177,20 +177,31 @@ class TDebProdouane extends TObjetStd {
 			$tabledet = 'facture_fourn_det';
 			$field_link = 'fk_facture_fourn';
 		}
+		if( $exporttype=='deb') {
 		$sql.= ", l.fk_product, l.qty";
-		
 		$sql.= ", p.weight, p.rowid as id_prod, p.customcode ";
+		}
 		
 		
 		$sql.= ", s.rowid as id_client, s.nom, s.zip, s.fk_pays, s.tva_intra ";
 		$sql.= ", c.code ";
-		$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
-		$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.".$field_link.")";
+		
+		//if( $exporttype=='deb') {
+		//$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
+		//$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.".$field_link.")";
+		//} else 	{
+		//$sql.= " FROM ".MAIN_DB_PREFIX.$table." f ";
+		//}
+		
+		
 		
 	// if no product for DES   FOR DEB need product 
 		if( $exporttype=='des') {
-		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product p ON (p.rowid = l.fk_product) ";
+		$sql.= " FROM ".MAIN_DB_PREFIX.$table." f ";
+		//$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product p ON (p.rowid = l.fk_product) ";
 		} else 	{
+		$sql.= " FROM ".MAIN_DB_PREFIX.$tabledet." l ";
+		$sql.= " INNER JOIN ".MAIN_DB_PREFIX.$table." f ON (f.rowid = l.".$field_link.")";
 		$sql.= " INNER JOIN ".MAIN_DB_PREFIX."product p ON (p.rowid = l.fk_product) ";
 		}
 		
